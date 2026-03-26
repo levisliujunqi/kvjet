@@ -1,26 +1,33 @@
-#include<vector>
-#include<list>
-#include<string>
-#include<optional>
-class HashTable{
+#include <list>
+#include <optional>
+#include <shared_mutex>
+#include <string>
+#include <vector>
+class HashTable {
 public:
     HashTable();
-    //获取对应的value,找不到返回std::nullopt
-    std::optional<std::string> get(std::string key);
-    //设置key和value
-    void set(std::string key,std::string value);
-    bool erase(std::string key);
-    int gethash(std::string key);
+    // 获取对应的value,找不到返回std::nullopt
+    std::optional<std::string> get(std::string_view key);
+    // 设置key和value
+    void set(std::string_view key, std::string_view value);
+    bool erase(std::string_view key);
+    uint32_t gethash(std::string_view key);
+
 private:
-    struct Node{
+    struct Node {
         std::string key;
         std::string value;
     };
+
+    // 读写锁
+    std::shared_mutex mtx;
+
     std::vector<std::list<Node>> buckets;
-    int sz,bucketsz;
+    size_t sz, bucketsz;
+    // 扩容
     void rehash();
-    //查找key对应的位置在哪，没有返回nullptr
-    Node* find(std::string key);
-    //负载因子=元素数量/桶数量
+    // 查找key对应的位置在哪，没有返回nullptr
+    Node *find(std::string_view key);
+    // 负载因子=元素数量/桶数量
     double loadfactor;
 };
