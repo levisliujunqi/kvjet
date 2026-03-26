@@ -11,16 +11,13 @@ public:
     // 设置key和value
     void set(std::string_view key, std::string_view value);
     bool erase(std::string_view key);
-    uint32_t gethash(std::string_view key);
-
+    static uint32_t gethash(std::string_view key);
+    bool checkexist(std::string_view key);
 private:
     struct Node {
         std::string key;
         std::string value;
     };
-
-    // 读写锁
-    std::shared_mutex mtx;
 
     std::vector<std::list<Node>> buckets;
     size_t sz, bucketsz;

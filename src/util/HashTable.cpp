@@ -23,7 +23,6 @@ HashTable::Node *HashTable::find(std::string_view key) {
 }
 
 std::optional<std::string> HashTable::get(std::string_view key) {
-    std::shared_lock<std::shared_mutex> lock(mtx);
     Node *p = find(key);
     if (p != nullptr)
         return p->value;
@@ -32,7 +31,6 @@ std::optional<std::string> HashTable::get(std::string_view key) {
 }
 
 void HashTable::set(std::string_view key, std::string_view value) {
-    std::unique_lock<std::shared_mutex> lock(mtx);
     Node *p = find(key);
     if (p != nullptr) {
         p->value = std::string(value);
@@ -60,7 +58,6 @@ void HashTable::rehash() {
 }
 
 bool HashTable::erase(std::string_view key) {
-    std::unique_lock<std::shared_mutex> lock(mtx);
     size_t idx = gethash(key) % bucketsz;
     for (auto it = buckets[idx].begin(); it != buckets[idx].end(); it++) {
         if (it->key == key) {
@@ -70,4 +67,8 @@ bool HashTable::erase(std::string_view key) {
         }
     }
     return false;
+}
+
+bool HashTable::checkexist(std::string_view key){
+    return find(key)!=nullptr;
 }
