@@ -37,7 +37,7 @@ void HashTable::set(std::string_view key, std::string_view value) {
     if (p != nullptr) {
         p->value = std::string(value);
     } else {
-        int idx = static_cast<unsigned int>(gethash(key)) % bucketsz;
+        size_t idx = gethash(key) % bucketsz;
         buckets[idx].push_back({std::string(key), std::string(value)});
         sz++;
         double nowloadfactor = 1.0 * sz / bucketsz;
@@ -52,7 +52,7 @@ void HashTable::rehash() {
     decltype(buckets) newbuckets(bucketsz);
     for (int i = 0; i < oldbucketsz; i++) {
         for (auto &node : buckets[i]) {
-            int idx = static_cast<unsigned int>(gethash(node.key)) % bucketsz;
+            size_t idx = gethash(node.key) % bucketsz;
             newbuckets[idx].push_back({std::move(node.key), std::move(node.value)});
         }
     }
