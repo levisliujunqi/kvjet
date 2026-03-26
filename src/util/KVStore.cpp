@@ -11,7 +11,7 @@ KVStore::Shard& KVStore::getShard(std::string_view key){
     return *shards[idx];
 }
 
-void KVStore::set(std::string_view key,std::string_view value){
+void KVStore::set(std::string key,std::string value){
     Shard& shard=getShard(key);
     std::unique_lock lock(shard.lock);
     shard.data.set(key,value);

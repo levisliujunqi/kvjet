@@ -4,7 +4,7 @@
 #include<optional>
 class KVStore{
 public:
-    void set(std::string_view key,std::string_view value);
+    void set(std::string key,std::string value);
     std::optional<std::string> get(std::string_view key);
     bool del(std::string_view key);
     bool checkexist(std::string_view key);

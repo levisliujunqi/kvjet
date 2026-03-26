@@ -10,6 +10,7 @@ set(UTIL_SOURCES
     src/util/ThreadPool.cpp
     src/util/HashTable.cpp
     src/util/KvStore.cpp
+    src/util/AOF.cpp
 )
 
 # RESP协议源文件
@@ -58,7 +59,7 @@ target_link_libraries(kvtest PRIVATE Threads::Threads)
 # KVStore unit test executable
 add_executable(kvtest_kvstore
     tests/test_kvstore.cpp
-    ${SOCKET_SOURCES}
+    ${UTIL_SOURCES}
 )
 target_link_libraries(kvtest_kvstore PRIVATE Threads::Threads)
 # Enable testing
