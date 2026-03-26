@@ -1,6 +1,14 @@
 #include "AOF.h"
+#include<iostream>
 AOF::AOF(std::string filename):filename(std::move(filename)),file(this->filename,std::ios::app|std::ios::binary){
-    if(!file.is_open()){
+    if (!file.is_open()) {
+        auto p = std::filesystem::path(this->filename);
+        if (p.has_parent_path()) {
+            std::filesystem::create_directories(p.parent_path());
+        }
+        file.open(this->filename, std::ios::app | std::ios::binary);
+    }
+    if (!file.is_open()) {
         throw std::runtime_error("AOF open failed.");
     }
 }

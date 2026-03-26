@@ -88,3 +88,15 @@ add_test(
     COMMAND $<TARGET_FILE:kvtest_kvstore>
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
+
+add_executable(testaof
+    tests/test_AOF.cpp
+    ${UTIL_SOURCES}
+)
+target_link_libraries(testaof PRIVATE Threads::Threads)
+
+add_test(
+    NAME test_AOF_unit
+    COMMAND $<TARGET_FILE:testaof>
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+)
