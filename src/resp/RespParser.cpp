@@ -6,7 +6,7 @@ using namespace resp;
 namespace resp {
     RespParser::RespParser() : state(WaitType), node() {
     }
-    void RespParser::append(const std::string& app) {
+    void RespParser::append(const std::string &app) {
         for (const char &c : app) {
             switch (state) {
             case WaitType:
@@ -171,27 +171,19 @@ namespace resp {
     }
     void RespParser::reset() {
         std::stack<RespState>().swap(stateStack);
+        std::queue<RespValue>().swap(message_queue);
         node = RespState();
         state = WaitType;
     }
     bool RespParser::hasResult() {
-        if (stateStack.size() == 1) {
-            RespValue &tp = stateStack.top().value;
-            size_t tot = stateStack.top().total;
-            if (auto it = std::get_if<Array>(tp.getPtr())) {
-                return it->value->size() == tot;
-            } else {
-                return true;
-            }
-        }
-        return false;
+        return !message_queue.empty();
     }
     std::optional<RespValue> RespParser::getResult() {
         if (!hasResult()) {
             return std::nullopt;
         }
-        auto result = std::move(stateStack.top().value);
-        reset();
+        auto result = std::move(message_queue.front());
+        pop();
         return result;
     }
 
@@ -203,7 +195,7 @@ namespace resp {
             }
         }
         if (stateStack.empty()) {
-            stateStack.push(std::move(state));
+            message_queue.push(std::move(state.value));
         } else {
             RespValue &tp = stateStack.top().value;
             size_t tot = stateStack.top().total;
@@ -218,5 +210,11 @@ namespace resp {
                 throw std::runtime_error("Parser Stack Error!!");
             }
         }
+    }
+    void RespParser::pop() {
+        if (!hasResult()) {
+            return;
+        }
+        message_queue.pop();
     }
 };

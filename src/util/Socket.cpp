@@ -3,7 +3,7 @@
 
 Socket::Socket() : Socket(AF_INET, SOCK_STREAM, 0) {}
 
-Socket::Socket(int domain, int type, int protocol) {
+Socket::Socket(int domain, int type, int protocol) : parser_() {
     fd_ = ::socket(domain, type, protocol);
     if (fd_ == -1) {
         throw std::runtime_error("Socket error: " + std::string(strerror(errno)));
@@ -15,7 +15,7 @@ Socket::~Socket() noexcept {
         close(fd_);
 }
 
-Socket::Socket(Socket &&other) noexcept {
+Socket::Socket(Socket &&other) noexcept : parser_(std::move(other.parser_)) {
     fd_ = other.fd_;
     other.fd_ = -1;
 }
@@ -26,6 +26,7 @@ Socket &Socket::operator=(Socket &&other) noexcept {
             close(fd_);
         this->fd_ = other.fd_;
         other.fd_ = -1;
+        this->parser_ = std::move(other.parser_);
     }
     return *this;
 }
@@ -76,11 +77,23 @@ void Socket::listen(int backlog) {
 }
 
 Socket Socket::accept() {
-    int client_fd = ::accept(fd_, nullptr, nullptr);
-    if (client_fd == -1) {
-        throw std::runtime_error("Accept error: " + std::string(strerror(errno)));
+    int client_fd;
+    while (true) {
+        client_fd = ::accept(fd_, nullptr, nullptr);
+        if (client_fd == -1) {
+            if (errno != EAGAIN && errno != EWOULDBLOCK)
+                throw std::runtime_error("Accept error: " + std::string(strerror(errno)));
+            else if (errno == EINTR)
+                continue;
+            else
+                return std::move(Socket(client_fd));
+        }
     }
-    return Socket(client_fd);
+    return std::move(Socket(client_fd));
 }
 
 Socket::Socket(int fd) noexcept : fd_(fd) {}
+
+resp::RespParser &Socket::parser() {
+    return parser_;
+}

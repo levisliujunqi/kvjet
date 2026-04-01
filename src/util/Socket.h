@@ -1,5 +1,6 @@
 // Socket.h
 #pragma once
+#include "../resp/RespParser.h"
 #include <arpa/inet.h>
 #include <cerrno>
 #include <cstdint>
@@ -49,7 +50,12 @@ public:
     // 接受客户端连接
     Socket accept();
 
+    // 获取解码器
+    resp::RespParser &parser();
+
 private:
     explicit Socket(int fd) noexcept;
     int fd_;
+    // RESP解码器
+    resp::RespParser parser_;
 };
