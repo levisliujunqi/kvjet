@@ -3,6 +3,7 @@
 
 #include "RespValue.h"
 #include <optional>
+#include <queue>
 #include <stack>
 // RESP解码器
 // 利用一个状态栈保留已解析信息，支持截断的数据字符串
@@ -17,6 +18,8 @@ namespace resp {
         bool hasResult();
         // 获取解析后的对象，若解析未完成则返回nullopt
         std::optional<RespValue> getResult();
+        // 弹出队首的解析完成对象
+        void pop();
         RespParser();
 
     private:
@@ -45,5 +48,7 @@ namespace resp {
         RespState node;
         // 状态栈，用于保留截断字符串前的状态
         std::stack<RespState> stateStack;
+        // 消息队列，用于存储已经解析好的RespValue对象
+        std::queue<RespValue> message_queue;
     };
 };
