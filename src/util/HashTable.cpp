@@ -1,6 +1,6 @@
 #include "HashTable.h"
 #include <mutex>
-
+#include "../resp/RespValue.h"
 template<typename T>
 HashTable<T>::HashTable() : buckets(16), bucketsz(16), sz(0), loadfactor(0.75) {
 }
@@ -31,7 +31,7 @@ template<typename T>
 std::optional<T> HashTable<T>::get(std::string_view key) {
     Node *p = find(key);
     if (p != nullptr)
-        return p->value;
+        return std::optional<T>(std::move(p->value));
     else
         return std::nullopt;
 }
@@ -84,4 +84,5 @@ bool HashTable<T>::checkexist(std::string_view key){
 }
 
 template class HashTable<std::string>;
+template class HashTable<resp::RespValue>;
 template class HashTable<std::list<std::string>::iterator>;

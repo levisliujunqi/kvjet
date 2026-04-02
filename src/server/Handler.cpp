@@ -51,7 +51,6 @@ std::string Handler::GET(resp::RespValue request, KVStore<resp::RespValue> &kvst
     }
     auto key = std::move(it->value.value()[1]);
     if (auto key_ = std::get_if<resp::SimpleString>(key->getPtr())) {
-        // TODO: KVStore和HashTable的get方法返回的应该是一个引用，然后这里就可以改auto &了，目前还有一次拷贝构造
         auto result = kvstore.get(std::move(key_->value));
         if (result.has_value()) {
             return std::move(resp::encode(result.value()));
@@ -107,7 +106,12 @@ std::string Handler::MGET(resp::RespValue request, KVStore<resp::RespValue> &kvs
     for (int i = 1; i < sz; i++) {
         auto key = std::move(it->value.value()[i]);
         if (auto key_ = std::get_if<resp::SimpleString>(key->getPtr())) {
-            ret.value->push_back(std::make_unique<resp::RespValue>(kvstore.get(std::move(key_->value))));
+            auto result = kvstore.get(std::move(key_->value));
+            if (result.has_value()) {
+                ret.value->push_back(std::make_unique<resp::RespValue>(std::move(result.value())));
+            } else {
+                ret.value->push_back(std::make_unique<resp::RespValue>(resp::BulkString(nullptr)));
+            }
         } else {
             throw std::runtime_error("MGET: Key is not a SimpleString");
         }

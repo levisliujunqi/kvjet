@@ -5,6 +5,7 @@
 
 Client::Client(const std::string &ip, uint16_t port) : sock() {
     sock.connect(ip, port);
+    std::cout << "Connected." << std::endl;
 }
 
 Client::~Client() {}
@@ -44,8 +45,11 @@ std::string Client::recv() {
 
 void Client::run() {
     std::string request;
-    while (std::cin >> request) {
+    while (std::getline(std::cin, request)) {
         send(request);
         std::cout << recv() << '\n';
     }
+}
+
+resp::RespValue handle(std::string) {
 }
