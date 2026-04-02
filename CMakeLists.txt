@@ -11,6 +11,7 @@ set(UTIL_SOURCES
     src/util/HashTable.cpp
     src/util/KVStore.cpp
     src/util/AOF.cpp
+    src/util/LRU.cpp
 )
 
 # RESP协议源文件

@@ -84,3 +84,4 @@ bool HashTable<T>::checkexist(std::string_view key){
 }
 
 template class HashTable<std::string>;
+template class HashTable<std::list<std::string>::iterator>;

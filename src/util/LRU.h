@@ -6,9 +6,11 @@
 class LRU{
 public:
     //访问一下key为x的这个元素
-    std::optional<std::string> access(std::string x);
+    void access(std::string_view x);
+    //设置一下key为x的这个元素
+    std::optional<std::string> set(std::string x);
     //删除x这个元素
-    void del(std::string x);
+    void del(std::string_view x);
     LRU(int maxsz);
 private:
     const int maxsz;

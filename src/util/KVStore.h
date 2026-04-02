@@ -4,6 +4,7 @@
 #include<mutex>
 #include"HashTable.h"
 #include<optional>
+#include"LRU.h"
 template<typename T>
 class KVStore{
 public:
@@ -18,6 +19,8 @@ private:
     struct Shard{
         HashTable<T> data;
         std::shared_mutex lock;
+        LRU lru;
+        Shard():lru(1000){};
     };
     std::vector<std::unique_ptr<Shard>> shards;
     Shard &getShard(std::string_view key);

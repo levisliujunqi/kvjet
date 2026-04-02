@@ -17,26 +17,35 @@ void KVStore<T>::set(std::string key,T value){
     Shard& shard=getShard(key);
     std::unique_lock lock(shard.lock);
     shard.data.set(key, value);
+    shard.lru.set(key);
 }
 
 template<typename T>
 std::optional<T> KVStore<T>::get(std::string_view key){
     Shard& shard=getShard(key);
-    std::shared_lock lock(shard.lock);
-    return shard.data.get(key);
+    std::unique_lock lock(shard.lock);
+    auto result=shard.data.get(key);
+    if(result!=std::nullopt){
+        shard.lru.access(key);
+    }
+    return result;
 }
 
 template<typename T>
 bool KVStore<T>::del(std::string_view key){
     Shard& shard=getShard(key);
     std::unique_lock lock(shard.lock);
-    return shard.data.erase(key);
+    auto result=shard.data.erase(key);
+    if(result){
+        shard.lru.del(key);
+    }
+    return result;
 }
 
 template<typename T>
 bool KVStore<T>::checkexist(std::string_view key){
     Shard& shard=getShard(key);
-    std::shared_lock lock(shard.lock);
+    std::unique_lock lock(shard.lock);
     return shard.data.checkexist(key);
 }
 
