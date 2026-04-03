@@ -72,7 +72,7 @@ std::string Server::recv(const Socket &sock) {
         } else if (n == 0) {
             epoll_ctl(epoll_fd, EPOLL_CTL_DEL, sock.fd(), nullptr);
             connections.erase(sock.fd());
-            return std::move(ret);
+            return ret;
         } else {
             if (errno != EAGAIN && errno != EWOULDBLOCK) {
                 if (epoll_ctl(epoll_fd, EPOLL_CTL_DEL, sock.fd(), nullptr) == -1) {
@@ -80,7 +80,7 @@ std::string Server::recv(const Socket &sock) {
                 }
                 connections.erase(sock.fd());
             }
-            return std::move(ret);
+            return ret;
         }
     }
 }
@@ -113,7 +113,10 @@ bool Server::accept() {
 }
 void Server::epoll_step() {
     int event_num = epoll_wait(epoll_fd, events, MAX_EVENTS, 100);
-    for (size_t i = 0; i < event_num; i++) {
+    if (event_num == -1) {
+        throw std::runtime_error("Epoll wait error");
+    }
+    for (size_t i = 0; i < (size_t)event_num; i++) {
         if (events[i].data.fd == server_sock.fd()) {
             while (accept()) {
             }

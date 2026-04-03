@@ -86,12 +86,12 @@ Socket Socket::accept() {
             else if (errno == EINTR)
                 continue;
             else
-                return std::move(Socket(client_fd));
+                return Socket(client_fd);
         } else {
             break;
         }
     }
-    return std::move(Socket(client_fd));
+    return Socket(client_fd);
 }
 
 Socket::Socket(int fd) noexcept : fd_(fd) {}

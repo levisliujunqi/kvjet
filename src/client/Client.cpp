@@ -50,7 +50,7 @@ void Client::run() {
     std::cout << ">>> ";
     while (std::getline(std::cin, request)) {
         if (!request.empty()) {
-            resp::RespValue req = std::move(handle(std::move(request)));
+            resp::RespValue req = handle(std::move(request));
             if (auto it = std::get_if<resp::Error>(req.getPtr())) {
                 std::cout << it->value << '\n';
                 if (it->value == "GoodBye.") {
@@ -74,23 +74,23 @@ resp::RespValue Client::handle(std::string req) {
     }
     if (reqv[0] == "GET") {
         if (reqv.size() != 2) {
-            return std::move(resp::RespValue(resp::Error("Usage: GET key")));
+            return resp::RespValue(resp::Error("Usage: GET key"));
         }
         resp::Array ret;
         ret.value = std::vector<std::unique_ptr<resp::RespValue>>();
         ret.value.value().push_back(std::make_unique<resp::RespValue>(resp::SimpleString(std::move(reqv[0]))));
         ret.value.value().push_back(std::make_unique<resp::RespValue>(resp::SimpleString(std::move(reqv[1]))));
-        return std::move(ret);
+        return ret;
     } else if (reqv[0] == "SET") {
         if (reqv.size() != 3) {
-            return std::move(resp::RespValue(resp::Error("Usage: SET key value")));
+            return resp::RespValue(resp::Error("Usage: SET key value"));
         }
         resp::Array ret;
         ret.value = std::vector<std::unique_ptr<resp::RespValue>>();
         ret.value.value().push_back(std::make_unique<resp::RespValue>(resp::SimpleString(std::move(reqv[0]))));
         ret.value.value().push_back(std::make_unique<resp::RespValue>(resp::SimpleString(std::move(reqv[1]))));
-        ret.value.value().push_back(std::make_unique<resp::RespValue>(resp::SimpleString(std::move(reqv[2]))));
-        return std::move(ret);
+        ret.value.value().push_back(std::make_unique<resp::RespValue>(resp::BulkString(std::move(reqv[2]))));
+        return ret;
     } else if (reqv[0] == "MGET") {
 
     } else if (reqv[0] == "EXSITS") {
@@ -109,10 +109,11 @@ resp::RespValue Client::handle(std::string req) {
                            "    GET mykey\n"
                            "    DEL mykey\n"
                            "    MGET key1 key2 key3";
-        return std::move(resp::RespValue(resp::Error(std::move(help))));
+        return resp::RespValue(resp::Error(std::move(help)));
     } else if (reqv[0] == "EXIT") {
-        return std::move(resp::RespValue(resp::Error("GoodBye.")));
+        return resp::RespValue(resp::Error("GoodBye."));
     } else {
-        return std::move(resp::RespValue(resp::Error("Unknown command. Type HELP for assistance.")));
+        return resp::RespValue(resp::Error("Unknown command. Type HELP for assistance."));
     }
+    return resp::RespValue(resp::Error("Unknown Error"));
 }

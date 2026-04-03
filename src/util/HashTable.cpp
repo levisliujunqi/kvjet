@@ -56,7 +56,7 @@ void HashTable<T>::rehash() {
     size_t oldbucketsz = bucketsz;
     bucketsz <<= 1;
     decltype(buckets) newbuckets(bucketsz);
-    for (int i = 0; i < oldbucketsz; i++) {
+    for (size_t i = 0; i < oldbucketsz; i++) {
         for (auto &node : buckets[i]) {
             size_t idx = gethash(node.key) % bucketsz;
             newbuckets[idx].push_back({std::move(node.key), std::move(node.value)});
