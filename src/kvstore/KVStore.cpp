@@ -15,11 +15,12 @@ typename KVStore<T>::Shard &KVStore<T>::getShard(std::string_view key) {
     return *shards[idx];
 }
 template <typename T>
-std::optional<std::string> KVStore<T>::set(std::string key, T value) {
+void KVStore<T>::set(std::string key, T value) {
     Shard &shard = getShard(key);
     std::unique_lock lock(shard.lock);
     shard.data.set(key, std::move(value));
-    return shard.lru.set(std::move(key));
+    auto s=shard.lru.set(std::move(key));
+    if(s.has_value()) shard.data.erase(s.value());
 }
 
 template <typename T>

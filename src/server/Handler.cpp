@@ -96,9 +96,7 @@ std::string Handler::SET_noAOF(resp::RespValue request, Server &server) {
     auto key = std::move(it->value.value()[1]);
     auto value = std::move(it->value.value()[2]);
     if (auto key_ = std::get_if<resp::SimpleString>(key->getPtr())) {
-        auto deleted_key = server.getKVStore().set(std::move(key_->value), std::move(*value));
-        if (deleted_key.has_value()) {
-        }
+        server.getKVStore().set(std::move(key_->value), std::move(*value));
         resp::RespValue ret(resp::SimpleString("OK"));
         return resp::encode(ret);
     } else {
